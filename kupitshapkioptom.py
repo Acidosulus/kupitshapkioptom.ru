@@ -148,17 +148,44 @@ class Good:
 		except:pass
 
 		source = sx(ol.page_source,'new JCCatalogElement(',');').replace("'",'"')
+		str_to_file('json.json', source)
 		data = json.loads(s=source)
+
+		try:
+			li = soup.find('div',{'class':'bx_size'}).find_all('li')
+			ll_sizes = []
+			for item in li:
+				if 'data-treevalue' in str(item):
+					#print('+++++++++>', sx(str(item), 'data-treevalue="','"'),'     ',item.find('span',{'class':'cnt'}).text)
+					ll = sx(str(item), 'data-treevalue="','"').split('_')
+					ll.append(item.find('span',{'class':'cnt'}).text)
+					ll_sizes.append(ll)
+		except:
+			ll_sizes = []
+			for i in range(1,source.count('"TREE":{"PROP_')+1):
+				lc_id = sx(source, '"TREE":{"PROP_', '"', i)
+				ll_sizes.append(['*',lc_id,'_'])
+
+		print('Идентификаторы размеров: ', ll_sizes)
+
 		for offer in data['OFFERS']:
-#			print()
-#			print(offer)
-#			print()
+			#print()
+			#print(offer)
+			#print()
 			pictures = []
+			lc_size = '*'
 			for sl in offer['SLIDER']:
 				pictures.append(ol.site_url + sl['SRC'])
+			for sz in ll_sizes:
+				lc = f"PROP_{sz[0]}"
+				#print(lc)
+				if lc in offer['TREE']:
+					if offer['TREE'][lc] == sz[1]:
+						lc_size = sz[2]
 			item = {'name':offer['NAME'], 
 					'price':offer['PRICE']['VALUE'],
-					'pictures':pictures}
+					'pictures':pictures,
+					'size':lc_size}
 			self.goods.append(item)
 		
 #			print(item)
@@ -186,7 +213,31 @@ if sys.argv[1] == 'good':
 	wd = Login()
 	print(sys.argv[1])
 	print(sys.argv[2])
-	good = unload_one_good(wd, sys.argv[2], sys.argv[3])
+	links_list = [sys.argv[2]]
+	print('Список товаров:', links_list)
+	ln_total = len(links_list)
+	ln_counter = 0
+	price = Price(sys.argv[3])
+	for link in links_list:
+		ln_counter = ln_counter + 1
+		print('Товар: ', link, Fore.LIGHTWHITE_EX, ln_counter, '/', ln_total, Fore.RESET)
+		if is_price_have_link(sys.argv[3], link):
+			print('Товар уже имеется в прайсе')
+			continue
+		lo_good = unload_one_good(wd, link, sys.argv[3])
+		for gg in lo_good.goods:
+			if int(gg['price'].replace(',', '.').replace(u'\xa0', ' ').replace(' ', ''))!=0:
+				price.add_good('',
+									prepare_str(gg['name']),
+									prepare_str(lo_good.description),
+									prepare_str( str(round(float(gg['price'].replace(',', '.').replace(u'\xa0', ' ').replace(' ', ''))*float(sys.argv[4]), 2))),
+									'15',
+									prepare_str(link),
+									prepare_for_csv_non_list(gg['pictures']),
+									gg['size'])
+				price.write_to_csv(sys.argv[3])
+			else:
+				echo(style('НУЛЕВАЯ ЦЕНА ТОВАРА', fg='bright_red'))
 
 
 if sys.argv[1] == 'catalog':
@@ -212,7 +263,7 @@ if sys.argv[1] == 'catalog':
 									'15',
 									prepare_str(link),
 									prepare_for_csv_non_list(gg['pictures']),
-									'')
+									gg['size'])
 				price.write_to_csv(sys.argv[3])
 			else:
 				echo(style('НУЛЕВАЯ ЦЕНА ТОВАРА', fg='bright_red'))
