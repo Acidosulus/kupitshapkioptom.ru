@@ -1,1 +1,1 @@
-python kupitshapkioptom.py good "https://kupitshapkioptom.ru/catalog/beysbolki-optom/zhenskie/bandany_kosynki_1/bandana_baff_odnotonnyy/" "./csvs/test.csv" "1"
+python kupitshapkioptom.py good "https://kupitshapkioptom.ru/catalog/detskaya_kollektsiya/detskie-shapki-optom/shapki-dlya-devochki-optom/povyazka_bandana_detskaya_rpd_21_gorokh/" "./csvs/test.csv" "1"
