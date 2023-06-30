@@ -1,1 +1,1 @@
-python kupitshapkioptom.py good "https://kupitshapkioptom.ru/catalog/detskaya_kollektsiya/detskie-shapki-optom/shapki-dlya-devochki-optom/povyazka_bandana_detskaya_rpd_21_gorokh/" "./csvs/test.csv" "1"
+python kupitshapkioptom.py good "https://kupitshapkioptom.ru/catalog/detskaya_kollektsiya/detskie-shapki-optom/shapka_detskaya_ysg_jr_234/" "./csvs/test.csv" "1"

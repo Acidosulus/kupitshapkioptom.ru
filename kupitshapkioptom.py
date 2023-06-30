@@ -30,11 +30,36 @@ from colorama import Fore, Back, Style
 from urllib.parse import quote
 from bs4 import BeautifulSoup as BS
 from click import echo, style
+from requests.auth import HTTPBasicAuth
 
 class WD:
 	def init(self):
 		self.site_url = 'https://kupitshapkioptom.ru'
-		config = configparser.ConfigParser()
+		self.autharization_url = 'https://kupitshapkioptom.ru/auth/sign-in-email.php?login=yes'
+		print(Fore.RED + 'Chrome Web Driver '+Fore.YELLOW +self.autharization_url+Fore.RESET)
+		chrome_options = webdriver.ChromeOptions()
+		chrome_prefs = {}
+		chrome_options.experimental_options["prefs"] = chrome_prefs
+		#chrome_prefs["profile.default_content_settings"] = {"images": 2}
+		#chrome_prefs["profile.managed_default_content_settings"] = {"images": 2}
+		chrome_options.add_argument('--disable-gpu')
+		chrome_options.add_argument("--disable-notifications")
+		chrome_options.binary_location = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+		#chrome_options.add_argument('--headless')
+		self.driver = webdriver.Chrome(chrome_options=chrome_options)
+		self.driver.maximize_window()
+		self.Get_HTML(self.autharization_url)
+		time.sleep(1)
+		self.driver.find_element(by=By.NAME, value='email').send_keys("acidos@yandex.ru")
+		time.sleep(1)
+		self.driver.find_element(by=By.NAME, value='password').send_keys("feloas852456")
+		time.sleep(1)
+		self.driver.find_element(by=By.NAME, value='password').send_keys("\n")
+		time.sleep(2)
+
+		return
+
+		
 
 	def __init__(self):
 		self.init()
@@ -50,7 +75,8 @@ class WD:
 
 	def __del__(self):
 		try:
-			self.driver.quit()
+			pass
+			#self.driver.quit()
 		except: pass
 
 	def Get_HTML(self, curl):
@@ -63,13 +89,9 @@ class WD:
 				self.page_source = r.text
 				str_to_file('response.html', self.page_source)
 		else:
-			#r = requests.get(curl, headers={'User-Agent': UserAgent().chrome})
-			r = requests.get(curl)
-			self.page_source = r.text
-			#str_to_file(file_path="response.html", st = r.text)
-			#self.driver.get(curl)
-			#self.page_source = self.driver.page_source
-			#return self.page_source
+			self.driver.get(curl)
+			return self.driver.page_source
+ 
 		return self.page_source
 
 	def Get_List_Of_Links_On_Goods_From_Catalog(self, pc_link):
@@ -79,7 +101,7 @@ class WD:
 		ll_catalog_items = []
 		for link in list_of_pages:
 			self.Get_HTML(link)
-			soup = BS(self.page_source, features='html5lib')
+			soup = BS(self.driver.page_source, features='html5lib')
 			items = soup.find_all('a', {'class': 'catalog-item'})
 			for item in items:
 				lc_link = self.site_url + item['href']
@@ -91,7 +113,7 @@ class WD:
 	def Get_List_of_Catalog_Pages(self, pc_href:str) -> list:
 		ll = []
 		self.Get_HTML(pc_href)
-		soup = BS(self.page_source, features='html5lib')
+		soup = BS(self.driver.page_source, features='html5lib')
 		paginator = soup.find('ul',{'class':'pagination'}).find_all('a')
 		lc_max = '0'
 		for link in paginator:
@@ -146,7 +168,7 @@ class Good:
 		self.goods = []
 		echo(style('Товар: ', fg='bright_yellow') + style(pc_good_link, fg='bright_white') + style('  Прайс:', fg='bright_cyan') + style(pc_price, fg='bright_green'))
 		ol.Get_HTML(pc_good_link)
-		soup = BS(ol.page_source, features='html5lib')
+		soup = BS(ol.driver.page_source, features='html5lib')
 
 		try:self.description = reduce(prepare_str(soup.find('div', {'class':'catalog-el__info-bottom'}).text)).replace('Описание и характеристики','').strip()
 		except:pass
@@ -158,8 +180,8 @@ class Good:
 
 		self.name = reduce(prepare_str(soup.find('div', {'class':'catalog-el__title'}).find('h1').text)).strip()
 		echo(style('Название: ', fg='yellow') + style(self.name, fg='bright_white'))
-
-		self.price = reduce(prepare_str(soup.find('div', {'class':'catalog-el-total'}).text)).strip()
+		self.price = '0'
+		self.price = reduce(prepare_str(soup.find('div', {'class':'price'}).text)).strip()
 		echo(style('Цена: ', fg='yellow') + style(self.price, fg='bright_blue'))
 
 		'catalog-el__size'
@@ -194,12 +216,9 @@ colorama.init()
 ########################################################################################################################
 ########################################################################################################################
 
-if sys.argv[1] == 'test':
-	wd = Login()
-	print(wd.Get_List_Of_Links_On_Goods_From_Catalog('https://kupitshapkioptom.ru/catalog/zhenskaya_kollektsiya/zhenskie-golovnye-ubory-optom/zhenskie-shapki-optom/'))
-
 if sys.argv[1] == 'good':
 	wd = Login()
+
 	print(sys.argv[1])
 	print(sys.argv[2])
 	links_list = [sys.argv[2]]
@@ -262,5 +281,5 @@ if sys.argv[1] == 'reverse':
 if sys.argv[1] == 'ansi':
 	convert_file_to_ansi(sys.argv[2] + '_reversed.csv')
 
-try: wd.driver.quit()
+try: pass #wd.driver.quit()
 except: pass
