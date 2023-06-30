@@ -40,8 +40,8 @@ class WD:
 		chrome_options = webdriver.ChromeOptions()
 		chrome_prefs = {}
 		chrome_options.experimental_options["prefs"] = chrome_prefs
-		#chrome_prefs["profile.default_content_settings"] = {"images": 2}
-		#chrome_prefs["profile.managed_default_content_settings"] = {"images": 2}
+		chrome_prefs["profile.default_content_settings"] = {"images": 2}
+		chrome_prefs["profile.managed_default_content_settings"] = {"images": 2}
 		chrome_options.add_argument('--disable-gpu')
 		chrome_options.add_argument("--disable-notifications")
 		chrome_options.binary_location = "C:\Program Files\Google\Chrome\Application\chrome.exe"
@@ -80,19 +80,29 @@ class WD:
 		except: pass
 
 	def Get_HTML(self, curl):
-		if False:
-			if os.path.isfile('response.html'):
-					echo(style('Загружен локальный файл: ', fg='bright_red') + style('response.html', fg='red'))
-					self.page_source = file_to_str('response.html')
-			else:
-				r = requests.get(curl)
-				self.page_source = r.text
-				str_to_file('response.html', self.page_source)
-		else:
+		try:
 			self.driver.get(curl)
-			return self.driver.page_source
- 
-		return self.page_source
+		except:
+			try:
+				time.sleep(5)
+				self.driver.get(curl)
+			except:
+				try:
+					time.sleep(10)
+					self.driver.get(curl)
+				except:
+					try:
+						time.sleep(20)
+						self.driver.get(curl)
+					except:
+						try:
+							time.sleep(40)
+							self.driver.get(curl)
+						except:
+							time.sleep(80)
+							self.driver.get(curl)
+		return self.driver.page_source
+
 
 	def Get_List_Of_Links_On_Goods_From_Catalog(self, pc_link):
 		echo(style('Список товаров каталога: ', fg='bright_yellow') + style(pc_link, fg='bright_white'))
