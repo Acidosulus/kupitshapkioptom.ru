@@ -203,7 +203,10 @@ class Good:
 			group_items = good_group.find_all('div', {'class':'catalog-el__size-card'})
 			for group_item in group_items:
 				lc_picture_link = self.site_url + group_item.find('img',{'class':'img-fluid'})['src']
-				self.pictures.append(lc_picture_link)
+				if len(self.pictures)<20:
+					self.pictures.append(lc_picture_link)
+				else:
+					echo(style('Картинка отброшена - их слишком много', fg='bright_red'))
 				self.sizes.append(f'{group_name} - {group_item.text.strip()}')
 				print(f'{group_name} -> {group_item.text.strip()} -> {lc_picture_link}')
 				
