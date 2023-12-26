@@ -191,7 +191,8 @@ class Good:
 		self.name = reduce(prepare_str(soup.find('div', {'class':'catalog-el__title'}).find('h1').text)).strip()
 		echo(style('Название: ', fg='yellow') + style(self.name, fg='bright_white'))
 		self.price = '0'
-		self.price = reduce(prepare_str(soup.find('div', {'class':'price'}).text)).strip()
+		try:self.price = reduce(prepare_str(soup.find('div', {'class':'price'}).text)).strip()
+		except:pass
 		echo(style('Цена: ', fg='yellow') + style(self.price, fg='bright_blue'))
 
 		'catalog-el__size'
