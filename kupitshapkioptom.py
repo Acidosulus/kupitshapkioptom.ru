@@ -40,8 +40,8 @@ class WD:
 		chrome_options = webdriver.ChromeOptions()
 		chrome_prefs = {}
 		chrome_options.experimental_options["prefs"] = chrome_prefs
-		chrome_prefs["profile.default_content_settings"] = {"images": 2}
-		chrome_prefs["profile.managed_default_content_settings"] = {"images": 2}
+		# chrome_prefs["profile.default_content_settings"] = {"images": 2}
+		# chrome_prefs["profile.managed_default_content_settings"] = {"images": 2}
 		chrome_options.add_argument('--disable-gpu')
 		chrome_options.add_argument("--disable-notifications")
 		chrome_options.binary_location = "C:\Program Files\Google\Chrome\Application\chrome.exe"
@@ -203,15 +203,20 @@ class Good:
 			#print(group_name)
 			group_items = good_group.find_all('div', {'class':'catalog-el__size-card'})
 			for group_item in group_items:
-				lc_picture_link = self.site_url + group_item.find('img',{'class':'img-fluid'})['src']
-				if len(self.pictures)<20:
-					self.pictures.append(lc_picture_link)
-				else:
-					echo(style('Картинка отброшена - их слишком много', fg='bright_red'))
+				# print('=====>',group_item.find('img',{'class':'img-fluid'})['src'])
 				self.sizes.append(f'{group_name} - {group_item.text.strip()}')
-				print(f'{group_name} -> {group_item.text.strip()} -> {lc_picture_link}')
+				print(f'{group_name} -> {group_item.text.strip()}')
 				
-			
+		picture_items = soup.find('div', {'id':'detail-slider-thumbs'}).find_all('img',{'class':'img-fluid'})
+		for item in picture_items:
+			path = item['src']
+			lc_picture_link =  path # self.site_url
+			if len(self.pictures)<20:
+				self.pictures.append(lc_picture_link)
+			else:
+				echo(style('Картинка отброшена - их слишком много', fg='bright_red'))
+
+
 
 
 def unload_one_good(dw:WD, lc_link_on_good: str, pc_price:str):

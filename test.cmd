@@ -1,1 +1,1 @@
-python kupitshapkioptom.py good "https://kupitshapkioptom.ru/catalog/detskaya_kollektsiya/detskie-shapki-optom/shapka_detskaya_ysg_jr_234/" "./csvs/test.csv" "1"
+python kupitshapkioptom.py good "https://kupitshapkioptom.ru/catalog/beysbolki_stok/beysbolka_detskaya_yr_s_115_la/" "./csvs/test.csv" "1"
